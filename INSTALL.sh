@@ -7,7 +7,7 @@ chmod +x ~/bin/fzf
 
 eza_source=https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
 wget -qO- $eza_source | tar xvzfO - > ~/bin/eza
-sudo chmod +x ~/bin/eza
+chmod +x ~/bin/eza
 
 curl -s https://ohmyposh.dev/install.sh | bash -s
 

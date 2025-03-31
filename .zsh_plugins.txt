@@ -28,7 +28,7 @@ belak/zsh-utils path:history
 belak/zsh-utils path:utility
 romkatv/zsh-bench kind:path
 
-getantidote/use-omz
+#getantidote/use-omz
 #ohmyzsh/ohmyzsh path:plugins/extract
 
 z-shell/zsh-navigation-tools
