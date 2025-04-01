@@ -31,8 +31,6 @@ romkatv/zsh-bench kind:path
 #getantidote/use-omz
 #ohmyzsh/ohmyzsh path:plugins/extract
 
-z-shell/zsh-navigation-tools
-
 aloxaf/fzf-tab  # Remove if you don't use fzf
 
 # Other Fish-like features

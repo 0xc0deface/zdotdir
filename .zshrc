@@ -35,3 +35,4 @@ unset _rc
 
 eval "$(oh-my-posh init zsh --config ${ZDOTDIR}/matts.omp.json)"
 
+source <(fzf --zsh)
