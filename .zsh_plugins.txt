@@ -24,6 +24,9 @@ belak/zsh-utils path:editor
 # History
 belak/zsh-utils path:history
 
+# Prompt
+romkatv/powerlevel10k
+
 # Utilities
 belak/zsh-utils path:utility
 romkatv/zsh-bench kind:path
