@@ -1,3 +1,6 @@
+#!/bin/bash -e
+
+# use or create a bin directory
 if [ -d "$HOME/bin" ]; then
 	export BIN_DIR="$HOME/bin"
 elif [ -d "$HOME/.local/bin" ]; then
@@ -7,9 +10,14 @@ else
 	export BIN_DIR="$HOME/bin"
 fi
 
+# make sure ~/.zshenv exists and make it point to this one.
 touch ~/.zshenv
-grep -qxF 'ZDOTDIR=$HOME/zdotdir' ~/.zshenv || echo 'ZDOTDIR=$HOME/zdotdir'\\n'$ZDOTDIR/.zshenv' >> ~/.zshenv
+grep -qxF 'ZDOTDIR=$HOME/zdotdir' ~/.zshenv || cat >> ~/.zshenv<< 'EOF'
+ZDOTDIR=$HOME/zdotdir
+. $ZDOTDIR/.zshenv
+EOF
 
+# helper function to update from github
 function update_from_github()
 {
 	# $1 = binary name
@@ -31,9 +39,14 @@ function update_from_github()
 	fi
 }
 
+# install fzf
 update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
+
+#install eza
 update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
 
+# install ohmyposh
 curl -s https://ohmyposh.dev/install.sh | bash -s
 
+# Install nerd-fonts via oh-my-posh (still needs to be configured to be used by system/terminal)
 oh-my-posh font install meslo
