@@ -13,21 +13,21 @@ zstyle ':antidote:bundle' use-friendly-names 'yes'
 # Trick out the zsh completion engine.
 # See: https://www.csse.uwa.edu.au/programming/linux/zsh-doc/zsh_23.html
 # The following lines were added by compinstall
-# zstyle ':completion:*' auto-description 'specify: %d'
-# zstyle ':completion:*' completer _complete _ignored _approximate
-# zstyle ':completion:*' completions 1
-# zstyle ':completion:*' glob 1
-# zstyle ':completion:*' group-name ''
-# zstyle ':completion:*' insert-unambiguous true
-# zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-# zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-# zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}'
-# zstyle ':completion:*' max-errors 1
-# zstyle ':completion:*' menu select=0
-# zstyle ':completion:*' original true
-# zstyle ':completion:*' prompt 'Did you mean?'
-# zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-# zstyle ':completion:*' verbose true
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _complete _ignored _approximate
+zstyle ':completion:*' completions 1
+zstyle ':completion:*' glob 1
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' insert-unambiguous true
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}'
+zstyle ':completion:*' max-errors 1
+zstyle ':completion:*' menu select=0
+zstyle ':completion:*' original true
+zstyle ':completion:*' prompt 'Did you mean?'
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' verbose true
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
