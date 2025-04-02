@@ -46,3 +46,8 @@ source <(fzf --zsh)
 
 # To customize prompt, run `p10k configure` or edit ~/zdotdir/.p10k.zsh.
 [[ ! -f ~/zdotdir/.p10k.zsh ]] || source ~/zdotdir/.p10k.zsh
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+eval "$(pyenv virtualenv-init -)"

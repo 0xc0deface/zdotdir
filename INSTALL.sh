@@ -50,3 +50,6 @@ curl -s https://ohmyposh.dev/install.sh | bash -s
 
 # Install nerd-fonts via oh-my-posh (still needs to be configured to be used by system/terminal)
 oh-my-posh font install meslo
+
+# install pyenv
+curl -fsSL https://pyenv.run | bash
