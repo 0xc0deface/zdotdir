@@ -46,10 +46,37 @@ update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_am
 update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
 
 # install ohmyposh
-curl -s https://ohmyposh.dev/install.sh | bash -s
+#curl -s https://ohmyposh.dev/install.sh | bash -s
 
 # Install nerd-fonts via oh-my-posh (still needs to be configured to be used by system/terminal)
-oh-my-posh font install meslo
+#oh-my-posh font install meslo
 
 # install pyenv
-curl -fsSL https://pyenv.run | bash
+if [ ! -d "$HOME/.pyenv" ]; then
+	curl -fsSL https://pyenv.run | bash
+fi
+
+#install fonts (still need to be set in terminal/system)
+mkdir -p ~/.local/share/fonts
+pushd ~/.local/share/fonts
+curl -fLO https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
+curl -fLO https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf
+curl -fLO https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf
+curl -fLO https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf
+popd
+
+function link_if_not_exists()
+{
+	# $1 = source file
+	# $2 = target file
+	mkdir -p $(dirname $2)
+	if [ ! -e "$2" ]; then
+		ln -sf $(realpath "$1") "$2"
+	else
+		echo "$2 already exists, skipping symlink creation"
+	fi
+}
+
+# link these files straight out of this repo so they all update on pull
+link_if_not_exists "files/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+link_if_not_exists "files/MattsTilixTheme.json" "$HOME/.config/tilix/schemes/MattsTilixTheme.json"
