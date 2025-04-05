@@ -29,9 +29,15 @@ function update_from_github()
 	if [ "$current_version" != "$latest_version" ]; then
 		echo "Updating $1: current version ($current_version), latest version ($latest_version)"
 		download_file=$(echo $latest_version | sed -E "s/(.*)/$3/")
+		
+		if [[ -z $4 ]]; then
+			extract_file=$1
+		else
+			extract_file=$(echo $latest_version | sed -E "s/(.*)/${4}/")
+		fi
+
 		source=$2/download/v$latest_version/$download_file
-		echo $source
-		wget -qO- $source | tar xvzfO - > $BIN_DIR/$1
+		wget -qO- $source | tar xvzfO - $extract_file > $BIN_DIR/$1
 		chmod +x $BIN_DIR/$1
 		echo "$1 updated to version $latest_version"
 	else
@@ -45,6 +51,9 @@ if [ $(uname -m) == "x86_64" ]; then
 
 	#install eza
 	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
+
+	update_from_github bat https://github.com/sharkdp/bat/releases 'bat-v\1-x86_64-unknown-linux-gnu.tar.gz' 'bat-v\1-x86_64-unknown-linux-gnu\/bat'
+
 fi
 
 if [ $(uname -m) == "aarch64" ]; then
@@ -53,6 +62,8 @@ if [ $(uname -m) == "aarch64" ]; then
 
 	#install eza
 	update_from_github eza https://github.com/eza-community/eza/releases eza_aarch64-unknown-linux-gnu.tar.gz
+
+	update_from_github bat https://github.com/sharkdp/bat/releases "bat-v\1-aarch64-unknown-linux-gnu.tar.gz" 'bat-v\1-aarch64-unknown-linux-gnu\/bat'
 fi
 
 # install ohmyposh
