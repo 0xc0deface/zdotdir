@@ -39,11 +39,21 @@ function update_from_github()
 	fi
 }
 
-# install fzf
-update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
+if [ $(uname -m) == "x86_64" ]; then
+	# install fzf
+	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
 
-#install eza
-update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
+	#install eza
+	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
+fi
+
+if [ $(uname -m) == "aarch64" ]; then
+	# install fzf
+	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_arm64.tar.gz'
+
+	#install eza
+	update_from_github eza https://github.com/eza-community/eza/releases eza_aarch64-unknown-linux-gnu.tar.gz
+fi
 
 # install ohmyposh
 #curl -s https://ohmyposh.dev/install.sh | bash -s
