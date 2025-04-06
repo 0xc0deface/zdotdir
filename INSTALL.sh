@@ -50,14 +50,14 @@ function update_from_github()
 
 if [ $(uname -m) == "x86_64" ]; then
 	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
-	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz
+	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz '.\/eza'
 	update_from_github bat https://github.com/sharkdp/bat/releases 'bat-v\1-x86_64-unknown-linux-gnu.tar.gz' 'bat-v\1-x86_64-unknown-linux-gnu\/bat'
 	update_from_github vivid https://github.com/sharkdp/vivid/releases 'vivid-v\1-x86_64-unknown-linux-gnu.tar.gz' 'vivid-v\1-x86_64-unknown-linux-gnu\/vivid'
 fi
 
 if [ $(uname -m) == "aarch64" ]; then
 	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_arm64.tar.gz'
-	update_from_github eza https://github.com/eza-community/eza/releases eza_aarch64-unknown-linux-gnu.tar.gz
+	update_from_github eza https://github.com/eza-community/eza/releases eza_aarch64-unknown-linux-gnu.tar.gz '.\/eza'
 	update_from_github bat https://github.com/sharkdp/bat/releases "bat-v\1-aarch64-unknown-linux-gnu.tar.gz" 'bat-v\1-aarch64-unknown-linux-gnu\/bat'
 	update_from_github vivid https://github.com/sharkdp/vivid/releases 'vivid-v\1-aarch64-unknown-linux-gnu.tar.gz' 'vivid-v\1-x86_64-unknown-linux-gnu\/vivid'
 fi
