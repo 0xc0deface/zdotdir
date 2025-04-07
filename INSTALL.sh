@@ -97,3 +97,5 @@ function link_if_not_exists()
 # link these files straight out of this repo so they all update on pull
 link_if_not_exists "files/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 link_if_not_exists "files/MattsTilixTheme.json" "$HOME/.config/tilix/schemes/MattsTilixTheme.json"
+link_if_not_exists "files/.backpack" "$HOME/.backpack"
+link_if_not_exists "files/backpack" "$BIN_DIR/backpack"

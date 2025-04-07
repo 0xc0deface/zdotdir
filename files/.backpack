@@ -1,0 +1,223 @@
+#
+# ~/.bashrc
+#
+
+[[ $- != *i* ]] && return
+
+########################################################################################
+# Sensible Bash - An attempt at saner Bash defaults
+# Maintainer: mrzool <http://mrzool.cc>
+# Repository: https://github.com/mrzool/bash-sensible
+# Version: 0.2.2
+
+# Unique Bash version check
+if ((BASH_VERSINFO[0] < 4))
+then 
+  echo "sensible.bash: Looks like you're running an older version of Bash." 
+  echo "sensible.bash: You need at least bash-4.0 or some options will not work correctly." 
+  echo "sensible.bash: Keep your software up-to-date!"
+fi
+
+## GENERAL OPTIONS ##
+
+# Prevent file overwrite on stdout redirection
+# Use `>|` to force redirection to an existing file
+set -o noclobber
+
+# Update window size after every command
+shopt -s checkwinsize
+
+# Automatically trim long paths in the prompt (requires Bash 4.x)
+PROMPT_DIRTRIM=2
+
+# Enable history expansion with space
+# E.g. typing !!<space> will replace the !! with your last command
+bind Space:magic-space
+
+# Turn on recursive globbing (enables ** to recurse all directories)
+shopt -s globstar 2> /dev/null
+
+## SMARTER TAB-COMPLETION (Readline bindings) ##
+
+# Perform file completion in a case insensitive fashion
+bind "set completion-ignore-case on"
+
+# Treat hyphens and underscores as equivalent
+bind "set completion-map-case on"
+
+# Display matches for ambiguous patterns at first tab press
+bind "set show-all-if-ambiguous on"
+
+# Immediately add a trailing slash when autocompleting symlinks to directories
+bind "set mark-symlinked-directories on"
+
+## SANE HISTORY DEFAULTS ##
+
+# Append to the history file, don't overwrite it
+shopt -s histappend
+
+# Save multi-line commands as one command
+shopt -s cmdhist
+
+# Record each line as it gets issued
+PROMPT_COMMAND='history -a'
+
+# Huge history. Doesn't appear to slow things down, so why not?
+HISTSIZE=10000
+HISTFILESIZE=10000
+export HISTSIZE PROMPT_COMMAND
+
+# Avoid duplicate entries
+HISTCONTROL="erasedups:ignoreboth"
+
+# Don't record some commands
+export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history:clear"
+
+# Use standard ISO 8601 timestamp
+# %F equivalent to %Y-%m-%d
+# %T equivalent to %H:%M:%S (24-hours format)
+#HISTTIMEFORMAT='%F %T '
+
+# Enable incremental history search with up/down arrows (also Readline goodness)
+# Learn more about this here: http://codeinthehole.com/writing/the-most-important-command-line-tip-incremental-history-searching-with-inputrc/
+#bind '"\e[A": history-search-backward'
+#bind '"\e[B": history-search-forward'
+bind '"\e[C": forward-char'
+bind '"\e[D": backward-char'
+
+## BETTER DIRECTORY NAVIGATION ##
+
+# Prepend cd to directory names automatically
+#shopt -s autocd 2> /dev/null
+# Correct spelling errors during tab-completion
+shopt -s dirspell 2> /dev/null
+# Correct spelling errors in arguments supplied to cd
+shopt -s cdspell 2> /dev/null
+
+# This defines where cd looks for targets
+# Add the directories you want to have fast access to, separated by colon
+# Ex: CDPATH=".:~:~/projects" will look for targets in the current working directory, in home and in the ~/projects folder
+#CDPATH="."
+
+# This allows you to bookmark your favorite places across the file system
+# Define a variable containing a path and you will be able to cd into it regardless of the directory you're in
+shopt -s cdable_vars
+
+# Examples:
+# export dotfiles="$HOME/dotfiles"
+# export projects="$HOME/projects"
+# export documents="$HOME/Documents"
+# export dropbox="$HOME/Dropbox"
+
+########################################################################################
+
+# up down subtring history search
+bind '"\e[A": history-substring-search-backward'
+bind '"\e[B": history-substring-search-forward'
+
+# Enable bash completion if available
+[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
+
+use_color=true
+
+# Set colorful PS1 only on colorful terminals.
+# dircolors --print-database uses its own built-in database
+# instead of using /etc/DIR_COLORS.  Try to use the external file
+# first to take advantage of user additions.  Use internal bash
+# globbing instead of external grep binary.
+safe_term=${TERM//[^[:alnum:]]/?}   # sanitize TERM
+match_lhs=""
+[[ -f ~/.dir_colors   ]] && match_lhs="${match_lhs}$(<~/.dir_colors)"
+[[ -f /etc/DIR_COLORS ]] && match_lhs="${match_lhs}$(</etc/DIR_COLORS)"
+[[ -z ${match_lhs}    ]] \
+	&& type -P dircolors >/dev/null \
+	&& match_lhs=$(dircolors --print-database)
+[[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
+
+if ${use_color} ; then
+	# Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
+	if type -P dircolors >/dev/null ; then
+		if [[ -f ~/.dir_colors ]] ; then
+			eval $(dircolors -b ~/.dir_colors)
+		elif [[ -f /etc/DIR_COLORS ]] ; then
+			eval $(dircolors -b /etc/DIR_COLORS)
+		fi
+	fi
+
+	if [[ ${EUID} == 0 ]] ; then
+		PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
+	else
+		PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+	fi
+
+	alias ls='ls --color=auto'
+	alias grep='grep --colour=auto'
+	alias egrep='egrep --colour=auto'
+	alias fgrep='fgrep --colour=auto'
+else
+	if [[ ${EUID} == 0 ]] ; then
+		# show root@ when we don't have colors
+		PS1='\u@\h \W \$ '
+	else
+		PS1='\u@\h \w \$ '
+	fi
+fi
+
+unset use_color safe_term match_lhs sh
+
+# some aliases from ubuntu
+alias cp="cp -i"                          # confirm before overwriting something
+alias df='df -h'                          # human-readable sizes
+alias free='free -m'                      # show sizes in MB
+
+# https://github.com/sineemore/backpack/tree/master
+# backpack is a wrapper for ssh that allows you to run commands on remote servers
+alias ssh=backpack
+
+# Bash won't get SIGWINCH if another process is in the foreground.
+# Enable checkwinsize so that bash will check the terminal size when
+# it regains control.  #65623
+# http://cnswww.cns.cwru.edu/~chet/bash/FAQ (E11)
+shopt -s checkwinsize
+
+# aliases defined in a script can be used in the script
+shopt -s expand_aliases
+
+#manual export of this:
+#export LS_COLORS="$(vivid generate iceberg-dark)"
+export LS_COLORS="*~=0;38;2;107;112;137:bd=0;38;2;137;184;194;48;2;54;56;74:ca=0:cd=0;38;2;173;160;211;48;2;54;56;74:di=0;38;2;132;160;198:do=0;38;2;30;33;50;48;2;173;160;211:ex=1;38;2;226;120;120:fi=0:ln=0;38;2;173;160;211:mh=0:mi=0;38;2;30;33;50;48;2;226;120;120:no=0:or=0;38;2;30;33;50;48;2;226;120;120:ow=0:pi=0;38;2;30;33;50;48;2;132;160;198:rs=0:sg=0:so=0;38;2;30;33;50;48;2;173;160;211:st=0:su=0:tw=0:*.1=0;38;2;226;164;120:*.a=1;38;2;226;120;120:*.c=0;38;2;180;190;130:*.d=0;38;2;180;190;130:*.h=0;38;2;180;190;130:*.m=0;38;2;180;190;130:*.o=0;38;2;107;112;137:*.p=0;38;2;180;190;130:*.r=0;38;2;180;190;130:*.t=0;38;2;180;190;130:*.v=0;38;2;180;190;130:*.z=4;38;2;137;184;194:*.7z=4;38;2;137;184;194:*.ai=0;38;2;173;160;211:*.as=0;38;2;180;190;130:*.bc=0;38;2;107;112;137:*.bz=4;38;2;137;184;194:*.cc=0;38;2;180;190;130:*.cp=0;38;2;180;190;130:*.cr=0;38;2;180;190;130:*.cs=0;38;2;180;190;130:*.db=4;38;2;137;184;194:*.di=0;38;2;180;190;130:*.el=0;38;2;180;190;130:*.ex=0;38;2;180;190;130:*.fs=0;38;2;180;190;130:*.go=0;38;2;180;190;130:*.gv=0;38;2;180;190;130:*.gz=4;38;2;137;184;194:*.ha=0;38;2;180;190;130:*.hh=0;38;2;180;190;130:*.hi=0;38;2;107;112;137:*.hs=0;38;2;180;190;130:*.jl=0;38;2;180;190;130:*.js=0;38;2;180;190;130:*.ko=1;38;2;226;120;120:*.kt=0;38;2;180;190;130:*.la=0;38;2;107;112;137:*.ll=0;38;2;180;190;130:*.lo=0;38;2;107;112;137:*.ma=0;38;2;173;160;211:*.mb=0;38;2;173;160;211:*.md=0;38;2;226;164;120:*.mk=0;38;2;180;190;130:*.ml=0;38;2;180;190;130:*.mn=0;38;2;180;190;130:*.nb=0;38;2;180;190;130:*.nu=0;38;2;180;190;130:*.pl=0;38;2;180;190;130:*.pm=0;38;2;180;190;130:*.pp=0;38;2;180;190;130:*.ps=0;38;2;226;120;120:*.py=0;38;2;180;190;130:*.rb=0;38;2;180;190;130:*.rm=0;38;2;173;160;211:*.rs=0;38;2;180;190;130:*.sh=0;38;2;180;190;130:*.so=1;38;2;226;120;120:*.td=0;38;2;180;190;130:*.ts=0;38;2;180;190;130:*.ui=0;38;2;226;164;120:*.vb=0;38;2;180;190;130:*.wv=0;38;2;173;160;211:*.xz=4;38;2;137;184;194:*FAQ=0;38;2;22;24;33;48;2;226;164;120:*.3ds=0;38;2;173;160;211:*.3fr=0;38;2;173;160;211:*.3mf=0;38;2;173;160;211:*.adb=0;38;2;180;190;130:*.ads=0;38;2;180;190;130:*.aif=0;38;2;173;160;211:*.amf=0;38;2;173;160;211:*.ape=0;38;2;173;160;211:*.apk=4;38;2;137;184;194:*.ari=0;38;2;173;160;211:*.arj=4;38;2;137;184;194:*.arw=0;38;2;173;160;211:*.asa=0;38;2;180;190;130:*.asm=0;38;2;180;190;130:*.aux=0;38;2;107;112;137:*.avi=0;38;2;173;160;211:*.awk=0;38;2;180;190;130:*.bag=4;38;2;137;184;194:*.bak=0;38;2;107;112;137:*.bat=1;38;2;226;120;120:*.bay=0;38;2;173;160;211:*.bbl=0;38;2;107;112;137:*.bcf=0;38;2;107;112;137:*.bib=0;38;2;226;164;120:*.bin=4;38;2;137;184;194:*.blg=0;38;2;107;112;137:*.bmp=0;38;2;173;160;211:*.bsh=0;38;2;180;190;130:*.bst=0;38;2;226;164;120:*.bz2=4;38;2;137;184;194:*.c++=0;38;2;180;190;130:*.cap=0;38;2;173;160;211:*.cfg=0;38;2;226;164;120:*.cgi=0;38;2;180;190;130:*.clj=0;38;2;180;190;130:*.com=1;38;2;226;120;120:*.cpp=0;38;2;180;190;130:*.cr2=0;38;2;173;160;211:*.cr3=0;38;2;173;160;211:*.crw=0;38;2;173;160;211:*.css=0;38;2;180;190;130:*.csv=0;38;2;226;164;120:*.csx=0;38;2;180;190;130:*.cxx=0;38;2;180;190;130:*.dae=0;38;2;173;160;211:*.dcr=0;38;2;173;160;211:*.dcs=0;38;2;173;160;211:*.deb=4;38;2;137;184;194:*.def=0;38;2;180;190;130:*.dll=1;38;2;226;120;120:*.dmg=4;38;2;137;184;194:*.dng=0;38;2;173;160;211:*.doc=0;38;2;226;120;120:*.dot=0;38;2;180;190;130:*.dox=0;38;2;180;190;130:*.dpr=0;38;2;180;190;130:*.drf=0;38;2;173;160;211:*.dxf=0;38;2;173;160;211:*.eip=0;38;2;173;160;211:*.elc=0;38;2;180;190;130:*.elm=0;38;2;180;190;130:*.epp=0;38;2;180;190;130:*.eps=0;38;2;173;160;211:*.erf=0;38;2;173;160;211:*.erl=0;38;2;180;190;130:*.exe=1;38;2;226;120;120:*.exr=0;38;2;173;160;211:*.exs=0;38;2;180;190;130:*.fbx=0;38;2;173;160;211:*.fff=0;38;2;173;160;211:*.fls=0;38;2;107;112;137:*.flv=0;38;2;173;160;211:*.fnt=0;38;2;173;160;211:*.fon=0;38;2;173;160;211:*.fsi=0;38;2;180;190;130:*.fsx=0;38;2;180;190;130:*.gif=0;38;2;173;160;211:*.git=0;38;2;107;112;137:*.gpr=0;38;2;173;160;211:*.gvy=0;38;2;180;190;130:*.h++=0;38;2;180;190;130:*.hda=0;38;2;173;160;211:*.hip=0;38;2;173;160;211:*.hpp=0;38;2;180;190;130:*.htc=0;38;2;180;190;130:*.htm=0;38;2;226;164;120:*.hxx=0;38;2;180;190;130:*.ico=0;38;2;173;160;211:*.ics=0;38;2;226;120;120:*.idx=0;38;2;107;112;137:*.igs=0;38;2;173;160;211:*.iiq=0;38;2;173;160;211:*.ilg=0;38;2;107;112;137:*.img=4;38;2;137;184;194:*.inc=0;38;2;180;190;130:*.ind=0;38;2;107;112;137:*.ini=0;38;2;226;164;120:*.inl=0;38;2;180;190;130:*.ino=0;38;2;180;190;130:*.ipp=0;38;2;180;190;130:*.iso=4;38;2;137;184;194:*.jar=4;38;2;137;184;194:*.jpg=0;38;2;173;160;211:*.jsx=0;38;2;180;190;130:*.jxl=0;38;2;173;160;211:*.k25=0;38;2;173;160;211:*.kdc=0;38;2;173;160;211:*.kex=0;38;2;226;120;120:*.kra=0;38;2;173;160;211:*.kts=0;38;2;180;190;130:*.log=0;38;2;107;112;137:*.ltx=0;38;2;180;190;130:*.lua=0;38;2;180;190;130:*.m3u=0;38;2;173;160;211:*.m4a=0;38;2;173;160;211:*.m4v=0;38;2;173;160;211:*.mdc=0;38;2;173;160;211:*.mef=0;38;2;173;160;211:*.mid=0;38;2;173;160;211:*.mir=0;38;2;180;190;130:*.mkv=0;38;2;173;160;211:*.mli=0;38;2;180;190;130:*.mos=0;38;2;173;160;211:*.mov=0;38;2;173;160;211:*.mp3=0;38;2;173;160;211:*.mp4=0;38;2;173;160;211:*.mpg=0;38;2;173;160;211:*.mrw=0;38;2;173;160;211:*.msi=4;38;2;137;184;194:*.mtl=0;38;2;173;160;211:*.nef=0;38;2;173;160;211:*.nim=0;38;2;180;190;130:*.nix=0;38;2;226;164;120:*.nrw=0;38;2;173;160;211:*.obj=0;38;2;173;160;211:*.obm=0;38;2;173;160;211:*.odp=0;38;2;226;120;120:*.ods=0;38;2;226;120;120:*.odt=0;38;2;226;120;120:*.ogg=0;38;2;173;160;211:*.ogv=0;38;2;173;160;211:*.orf=0;38;2;173;160;211:*.org=0;38;2;226;164;120:*.otf=0;38;2;173;160;211:*.otl=0;38;2;173;160;211:*.out=0;38;2;107;112;137:*.pas=0;38;2;180;190;130:*.pbm=0;38;2;173;160;211:*.pcx=0;38;2;173;160;211:*.pdf=0;38;2;226;120;120:*.pef=0;38;2;173;160;211:*.pgm=0;38;2;173;160;211:*.php=0;38;2;180;190;130:*.pid=0;38;2;107;112;137:*.pkg=4;38;2;137;184;194:*.png=0;38;2;173;160;211:*.pod=0;38;2;180;190;130:*.ppm=0;38;2;173;160;211:*.pps=0;38;2;226;120;120:*.ppt=0;38;2;226;120;120:*.pro=0;38;2;180;190;130:*.ps1=0;38;2;180;190;130:*.psd=0;38;2;173;160;211:*.ptx=0;38;2;173;160;211:*.pxn=0;38;2;173;160;211:*.pyc=0;38;2;107;112;137:*.pyd=0;38;2;107;112;137:*.pyo=0;38;2;107;112;137:*.qoi=0;38;2;173;160;211:*.r3d=0;38;2;173;160;211:*.raf=0;38;2;173;160;211:*.rar=4;38;2;137;184;194:*.raw=0;38;2;173;160;211:*.rpm=4;38;2;137;184;194:*.rst=0;38;2;226;164;120:*.rtf=0;38;2;226;120;120:*.rw2=0;38;2;173;160;211:*.rwl=0;38;2;173;160;211:*.rwz=0;38;2;173;160;211:*.sbt=0;38;2;180;190;130:*.sql=0;38;2;180;190;130:*.sr2=0;38;2;173;160;211:*.srf=0;38;2;173;160;211:*.srw=0;38;2;173;160;211:*.stl=0;38;2;173;160;211:*.stp=0;38;2;173;160;211:*.sty=0;38;2;107;112;137:*.svg=0;38;2;173;160;211:*.swf=0;38;2;173;160;211:*.swp=0;38;2;107;112;137:*.sxi=0;38;2;226;120;120:*.sxw=0;38;2;226;120;120:*.tar=4;38;2;137;184;194:*.tbz=4;38;2;137;184;194:*.tcl=0;38;2;180;190;130:*.tex=0;38;2;180;190;130:*.tga=0;38;2;173;160;211:*.tgz=4;38;2;137;184;194:*.tif=0;38;2;173;160;211:*.tml=0;38;2;226;164;120:*.tmp=0;38;2;107;112;137:*.toc=0;38;2;107;112;137:*.tsx=0;38;2;180;190;130:*.ttf=0;38;2;173;160;211:*.txt=0;38;2;226;164;120:*.typ=0;38;2;226;164;120:*.usd=0;38;2;173;160;211:*.vcd=4;38;2;137;184;194:*.vim=0;38;2;180;190;130:*.vob=0;38;2;173;160;211:*.vsh=0;38;2;180;190;130:*.wav=0;38;2;173;160;211:*.wma=0;38;2;173;160;211:*.wmv=0;38;2;173;160;211:*.wrl=0;38;2;173;160;211:*.x3d=0;38;2;173;160;211:*.x3f=0;38;2;173;160;211:*.xlr=0;38;2;226;120;120:*.xls=0;38;2;226;120;120:*.xml=0;38;2;226;164;120:*.xmp=0;38;2;226;164;120:*.xpm=0;38;2;173;160;211:*.xvf=0;38;2;173;160;211:*.yml=0;38;2;226;164;120:*.zig=0;38;2;180;190;130:*.zip=4;38;2;137;184;194:*.zsh=0;38;2;180;190;130:*.zst=4;38;2;137;184;194:*TODO=1:*hgrc=0;38;2;180;190;130:*.avif=0;38;2;173;160;211:*.bash=0;38;2;180;190;130:*.braw=0;38;2;173;160;211:*.conf=0;38;2;226;164;120:*.dart=0;38;2;180;190;130:*.data=0;38;2;173;160;211:*.diff=0;38;2;180;190;130:*.docx=0;38;2;226;120;120:*.epub=0;38;2;226;120;120:*.fish=0;38;2;180;190;130:*.flac=0;38;2;173;160;211:*.h264=0;38;2;173;160;211:*.hack=0;38;2;180;190;130:*.heif=0;38;2;173;160;211:*.hgrc=0;38;2;180;190;130:*.html=0;38;2;226;164;120:*.iges=0;38;2;173;160;211:*.info=0;38;2;226;164;120:*.java=0;38;2;180;190;130:*.jpeg=0;38;2;173;160;211:*.json=0;38;2;226;164;120:*.less=0;38;2;180;190;130:*.lisp=0;38;2;180;190;130:*.lock=0;38;2;107;112;137:*.make=0;38;2;180;190;130:*.mojo=0;38;2;180;190;130:*.mpeg=0;38;2;173;160;211:*.nims=0;38;2;180;190;130:*.opus=0;38;2;173;160;211:*.orig=0;38;2;107;112;137:*.pptx=0;38;2;226;120;120:*.prql=0;38;2;180;190;130:*.psd1=0;38;2;180;190;130:*.psm1=0;38;2;180;190;130:*.purs=0;38;2;180;190;130:*.raku=0;38;2;180;190;130:*.rlib=0;38;2;107;112;137:*.sass=0;38;2;180;190;130:*.scad=0;38;2;180;190;130:*.scss=0;38;2;180;190;130:*.step=0;38;2;173;160;211:*.tbz2=4;38;2;137;184;194:*.tiff=0;38;2;173;160;211:*.toml=0;38;2;226;164;120:*.usda=0;38;2;173;160;211:*.usdc=0;38;2;173;160;211:*.usdz=0;38;2;173;160;211:*.webm=0;38;2;173;160;211:*.webp=0;38;2;173;160;211:*.woff=0;38;2;173;160;211:*.xbps=4;38;2;137;184;194:*.xlsx=0;38;2;226;120;120:*.yaml=0;38;2;226;164;120:*stdin=0;38;2;107;112;137:*v.mod=0;38;2;180;190;130:*.blend=0;38;2;173;160;211:*.cabal=0;38;2;180;190;130:*.cache=0;38;2;107;112;137:*.class=0;38;2;107;112;137:*.cmake=0;38;2;180;190;130:*.ctags=0;38;2;107;112;137:*.dylib=1;38;2;226;120;120:*.dyn_o=0;38;2;107;112;137:*.gcode=0;38;2;180;190;130:*.ipynb=0;38;2;180;190;130:*.mdown=0;38;2;226;164;120:*.patch=0;38;2;180;190;130:*.rmeta=0;38;2;107;112;137:*.scala=0;38;2;180;190;130:*.shtml=0;38;2;226;164;120:*.swift=0;38;2;180;1=0;38;2;107;112;137:*LEGACY=0;38;2;22;24;33;48;2;226;164;120:*NOTICE=0;38;2;22;24;33;48;2;226;164;120:*README=0;38;2;22;24;33;48;2;226;164;120:*go.mod=0;38;2;180;190;130:*go.sum=0;38;2;107;112;137:*passwd=0;38;2;226;164;120:*shadow=0;38;2;226;164;120:*stderr=0;38;2;107;112;137:*stdout=0;38;2;107;112;137:*.bashrc=0;38;2;180;190;130:*.config=0;38;2;226;164;120:*.dyn_hi=0;38;2;107;112;137:*.flake8=0;38;2;180;190;130:*.gradle=0;38;2;180;190;130:*.groovy=0;38;2;180;190;130:*.ignore=0;38;2;180;190;130:*.matlab=0;38;2;180;190;130:*.nimble=0;38;2;180;190;130:*COPYING=0;38;2;130;133;151:*INSTALL=0;38;2;22;24;33;48;2;226;164;120:*LICENCE=0;38;2;130;133;151:*LICENSE=0;38;2;130;133;151:*TODO.md=1:*VERSION=0;38;2;22;24;33;48;2;226;164;120:*.alembic=0;38;2;173;160;211:*.desktop=0;38;2;226;164;120:*.gemspec=0;38;2;180;190;130:*.mailmap=0;38;2;180;190;130:*Doxyfile=0;38;2;180;190;130:*Makefile=0;38;2;180;190;130:*TODO.txt=1:*setup.py=0;38;2;180;190;130:*.DS_Store=0;38;2;107;112;137:*.cmake.in=0;38;2;180;190;130:*.fdignore=0;38;2;180;190;130:*.kdevelop=0;38;2;180;190;130:*.markdown=0;38;2;226;164;120:*.rgignore=0;38;2;180;190;130:*.tfignore=0;38;2;180;190;130:*CHANGELOG=0;38;2;22;24;33;48;2;226;164;120:*COPYRIGHT=0;38;2;130;133;151:*README.md=0;38;2;22;24;33;48;2;226;164;120:*bun.lockb=0;38;2;107;112;137:*configure=0;38;2;180;190;130:*.gitconfig=0;38;2;180;190;130:*.gitignore=0;38;2;180;190;130:*.localized=0;38;2;107;112;137:*.scons_opt=0;38;2;107;112;137:*.timestamp=0;38;2;107;112;137:*CODEOWNERS=0;38;2;180;190;130:*Dockerfile=0;38;2;226;164;120:*INSTALL.md=0;38;2;22;24;33;48;2;226;164;120:*README.txt=0;38;2;22;24;33;48;2;226;164;120:*SConscript=0;38;2;180;190;130:*SConstruct=0;38;2;180;190;130:*.cirrus.yml=0;38;2;180;190;130:*.gitmodules=0;38;2;180;190;130:*.synctex.gz=0;38;2;107;112;137:*.travis.yml=0;38;2;180;190;130:*INSTALL.txt=0;38;2;22;24;33;48;2;226;164;120:*LICENSE-MIT=0;38;2;130;133;151:*MANIFEST.in=0;38;2;180;190;130:*Makefile.am=0;38;2;180;190;130:*Makefile.in=0;38;2;107;112;137:*.applescript=0;38;2;180;190;130:*.fdb_latexmk=0;38;2;107;112;137:*.webmanifest=0;38;2;226;164;120:*CHANGELOG.md=0;38;2;22;24;33;48;2;226;164;120:*CONTRIBUTING=0;38;2;22;24;33;48;2;226;164;120:*CONTRIBUTORS=0;38;2;22;24;33;48;2;226;164;120:*appveyor.yml=0;38;2;180;190;130:*configure.ac=0;38;2;180;190;130:*.bash_profile=0;38;2;180;190;130:*.clang-format=0;38;2;180;190;130:*.editorconfig=0;38;2;180;190;130:*CHANGELOG.txt=0;38;2;22;24;33;48;2;226;164;120:*.gitattributes=0;38;2;180;190;130:*.gitlab-ci.yml=0;38;2;180;190;130:*CMakeCache.txt=0;38;2;107;112;137:*CMakeLists.txt=0;38;2;180;190;130:*LICENSE-APACHE=0;38;2;130;133;151:*pyproject.toml=0;38;2;180;190;130:*CODE_OF_CONDUCT=0;38;2;22;24;33;48;2;226;164;120:*CONTRIBUTING.md=0;38;2;22;24;33;48;2;226;164;120:*CONTRIBUTORS.md=0;38;2;22;24;33;48;2;226;164;120:*.sconsign.dblite=0;38;2;107;112;137:*CONTRIBUTING.txt=0;38;2;22;24;33;48;2;226;164;120:*CONTRIBUTORS.txt=0;38;2;22;24;33;48;2;226;164;120:*requirements.txt=0;38;2;180;190;130:*package-lock.json=0;38;2;107;112;137:*CODE_OF_CONDUCT.md=0;38;2;22;24;33;48;2;226;164;120:*.CFUserTextEncoding=0;38;2;107;112;137:*CODE_OF_CONDUCT.txt=0;38;2;22;24;33;48;2;226;164;120:*azure-pipelines.yml=0;38;2;180;190;130"
+
+export LESS_TERMCAP_se=$'\e[00m'
+export LESS_TERMCAP_so=$'\e[01;33m\e[44m'
+export LESS_TERMCAP_ZV=''
+export LESS_TERMCAP_ZW=''
+export LESS_TERMCAP_ZN=''
+export LESS_TERMCAP_ZO=''
+export LESS_TERMCAP_mh=$'\e[2m'
+export LESS_TERMCAP_mb=$'\e[01;31m'
+export LESS_TERMCAP_me=$'\e[00m'
+export LESS_TERMCAP_md=$'\e[01;31m'
+export LESS_TERMCAP_mr=$'\e[7m'
+export LESS_TERMCAP_ue=$'\e[00m'
+export LESS_TERMCAP_us=$'\e[01;32m'
+
+export TERM='xterm-256color'
+export LC_IDENTIFICATION=$'en_AU.UTF-8'
+
+# default pager is less
+export PAGER='/usr/bin/less'
+export GROFF_NO_SGR=1
+
+# Get color support for 'less'
+export LESS="--RAW-CONTROL-CHARS"
+
+# Use colors for less, man, etc.
+[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
+
+bind 'set show-all-if-ambiguous on'
+#bind 'TAB:menu-complete'
+
+bind 'set colored-stats on'
+bind 'set menu-complete-display-prefix on'
+bind 'set colored-completion-prefix on'
+bind 'set show-all-if-unmodified on'
