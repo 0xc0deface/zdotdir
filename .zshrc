@@ -56,3 +56,7 @@ export LS_COLORS="$(vivid generate iceberg-dark)"
 
 #aliases
 alias ls="eza --color=auto --icons=auto --group-directories-first"
+
+# https://github.com/sineemore/backpack/tree/master
+# backpack is a wrapper for ssh that allows you to run commands on remote servers
+alias ssh=backpack
