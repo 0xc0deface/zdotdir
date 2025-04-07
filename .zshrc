@@ -53,3 +53,6 @@ eval "$(pyenv init - zsh)"
 eval "$(pyenv virtualenv-init -)"
 
 export LS_COLORS="$(vivid generate iceberg-dark)"
+
+#aliases
+alias ls="eza --color=auto --icons=auto --group-directories-first"
