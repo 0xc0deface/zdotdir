@@ -60,3 +60,6 @@ alias ls="eza --color=auto --icons=auto --group-directories-first"
 # https://github.com/sineemore/backpack/tree/master
 # backpack is a wrapper for ssh that allows you to run commands on remote servers
 alias ssh=backpack
+
+# make sure completion still works for ssh (and other aliases)
+setopt completealiases
