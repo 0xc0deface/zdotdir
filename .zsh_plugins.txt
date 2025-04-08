@@ -8,7 +8,6 @@ mattmc3/zephyr path:plugins/history
 mattmc3/zephyr path:plugins/directory
 mattmc3/zephyr path:plugins/color
 mattmc3/zephyr path:plugins/utility
-mattmc3/zephyr path:plugins/homebrew
 mattmc3/zephyr path:plugins/confd
 
 # Completions
@@ -26,10 +25,6 @@ belak/zsh-utils path:history
 
 # Prompt
 romkatv/powerlevel10k
-
-# Utilities
-belak/zsh-utils path:utility
-romkatv/zsh-bench kind:path
 
 #getantidote/use-omz
 #ohmyzsh/ohmyzsh path:plugins/extract
