@@ -63,3 +63,9 @@ alias ssh=backpack
 
 # make sure completion still works for ssh (and other aliases)
 setopt completealiases
+
+alias ssh-askpass="ksshaskpass"
+alias which=/usr/bin/which
+
+# For debug symbols
+export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
