@@ -1,0 +1,16 @@
+# This is not to automatically install
+#ln -sf $(realpath wl-sync.service) ~/.config/systemd/user/wl-sync.service
+#systemctl --user daemon-reload
+#systemctl --user enable --now wl-sync.service
+
+[Unit]
+Description=Wayland clipboard synchronizer
+
+[Service]
+# Delay start by 10 seconds if needed
+ExecStart=/bin/sh -c 'sleep 10 && wl-paste --watch wl-copy -p'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
