@@ -65,6 +65,7 @@ setopt completealiases
 
 alias ssh-askpass="ksshaskpass"
 alias which=/usr/bin/which
+alias cheat="cheat --colorize"
 
 # For debug symbols
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
