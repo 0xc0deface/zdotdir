@@ -31,6 +31,8 @@ romkatv/powerlevel10k
 
 aloxaf/fzf-tab  # Remove if you don't use fzf
 
+Freed-Wu/fzf-tab-source
+
 # Other Fish-like features
 zdharma-continuum/fast-syntax-highlighting kind:defer  # Syntax highlighting
 zsh-users/zsh-autosuggestions kind:defer               # Auto-suggestions

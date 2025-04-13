@@ -1,0 +1,42 @@
+#!/bin/zsh
+
+# directory
+# option
+# files
+# filename
+# host
+# coredumps
+# user
+# prefix
+
+if [[ -d $1 ]]; then
+	eza --level 2 --tree --color=always --group-directories-first --icons=auto $1
+elif [[ -f $1 ]]; then
+
+	mime_type=$(file -b --mime-type $1)
+	base_mime=$(echo $mime_type | cut -d'/' -f1)
+	end_mime=$(echo $mime_type | cut -d'/' -f2)
+	
+	case $base_mime in
+		application)
+			case $end_mime in
+				gzip|x-gzip)
+					gunzip -l $1 | head -n 500 | bat
+					;;
+				zip|x-zip)
+					unzip -l $1 | head -n 500 | bat
+					;;
+				x-executable)
+					objdump -dhl -demangle --disassembler-color=extended-color --visualize-jumps=extended-color $1 | head -n 500 | bat
+					;;
+				*)
+					hexdump -C $1 | head -n 500 | bat
+					;;
+			esac
+			;;
+		*)
+			bat --color=always --style=numbers --line-range=:500 $1
+			;;
+	esac
+
+fi

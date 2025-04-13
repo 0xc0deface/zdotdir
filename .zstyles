@@ -38,21 +38,23 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
 zstyle ':completion:*' menu no
+
 # preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:(cd|ls):*' fzf-preview 'eza -1 -a --tree --level 2 --group-directories-first --color=always --icons=auto $realpath'
+zstyle ':fzf-tab:complete:(cd|ls):*' fzf-preview 'fzf-smart-preview $realpath $group'
 
 # change the continuous trigger key to tab for ls and cd
 zstyle ':fzf-tab:complete:(cd|ls):*' continuous-trigger tab
 
-#disable preview for these commands
+# disable preview for these commands
 zstyle ':fzf-tab:complete:ssh:*' fzf-preview
 
 # preview for everthing else is files.
-zstyle ':fzf-tab:complete:*' fzf-preview 'bat --color=always --style=numbers --line-range=:500 $realpath'
+zstyle ':fzf-tab:complete:*' fzf-preview 'fzf-smart-preview $realpath $group'
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'fzf-smart-preview $realpath $group'
 
 # custom fzf flags
 # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
-zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=enter:accept --style=full #--reverse --cycle --no-multi --no-sort --no-info --inline-info --prompt="> " --header-lines=1 --preview-window=up:30%:wrap
+zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=enter:accept --style=full
 
 #--preview-border=none
 # To make fzf-tab follow FZF_DEFAULT_OPTS.
@@ -60,3 +62,9 @@ zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=enter:accept --style=ful
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 # switch group using `<` and `>`
 zstyle ':fzf-tab:*' switch-group '<' '>'
+
+# give a preview of commandline arguments when completing `kill`
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap

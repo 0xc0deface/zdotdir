@@ -14,6 +14,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+ZSCRIPTDIR=${ZDOTDIR:-$HOME}/scripts
+path=($ZSCRIPTDIR $path)
+
 # Lazy-load (autoload) Zsh function files from a directory.
 ZFUNCDIR=${ZDOTDIR:-$HOME}/.zfunctions
 fpath=($ZFUNCDIR $fpath)
@@ -27,8 +30,6 @@ if [[ ! -d ${ZDOTDIR:-$HOME}/.antidote ]]; then
   git clone https://github.com/mattmc3/antidote ${ZDOTDIR:-$HOME}/.antidote
 fi
 
-#autoload -U compinit; compinit
-
 # Create an amazing Zsh config using antidote plugins.
 source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
 antidote load
@@ -41,8 +42,6 @@ for _rc in ${ZDOTDIR:-$HOME}/.zshrc.d/*.zsh; do
   fi
 done
 unset _rc
-
-#eval "$(oh-my-posh init zsh --config ${ZDOTDIR}/matts.omp.json)"
 
 source <(fzf --zsh)
 
@@ -69,3 +68,5 @@ alias which=/usr/bin/which
 
 # For debug symbols
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
+
+export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
