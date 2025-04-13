@@ -74,8 +74,8 @@ if [ $(uname -m) == "x86_64" ]; then
 	update_from_github bat https://github.com/sharkdp/bat/releases 'bat-v\1-x86_64-unknown-linux-gnu.tar.gz' 'bat-v\1-x86_64-unknown-linux-gnu\/bat'
 	update_from_github vivid https://github.com/sharkdp/vivid/releases 'vivid-v\1-x86_64-unknown-linux-gnu.tar.gz' 'vivid-v\1-x86_64-unknown-linux-gnu\/vivid'
 	update_from_github glow https://github.com/charmbracelet/glow/releases 'glow_\1_Linux_x86_64.tar.gz' 'glow_\1_Linux_x86_64\/glow'
-	update_from_github chafa https://github.com/hpjansson/chafa/releases 'chafa-\1.tar.xz'
 	update_from_github cheat https://github.com/cheat/cheat/releases 'cheat-linux-amd64.gz'
+	#update_from_github chafa https://github.com/hpjansson/chafa/releases 'chafa-\1.tar.xz'
 fi
 
 if [ $(uname -m) == "aarch64" ]; then
