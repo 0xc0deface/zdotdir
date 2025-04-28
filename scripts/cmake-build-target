@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -eo pipefail
+
+PRESET=$(cmake --list-presets | tail -n +3 | fzf --reverse | sed "s/\"//g")
+TARGET=$(cmake --build --preset $PRESET --target help | grep -E '^[^/]+$' | grep -v -E '^(lib.*.lib.a|test:|edit_cache:|rebuild_cache|list_install_components:|install:|build.ninja:|clean:|help:)' | sed -E 's/^(.*): phony$/\1/' | fzf --reverse)
+echo "cmake --build --preset $PRESET --target $TARGET"
+cmake --build --preset $PRESET --target $TARGET
