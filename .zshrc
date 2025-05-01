@@ -67,6 +67,26 @@ alias ssh-askpass="ksshaskpass"
 alias which=/usr/bin/which
 alias cheat="cheat --colorize"
 
+alias emacs='emacs -nw'
+
+alias findfile='find . -type f -name'
+alias findfolder='find . -type d -name'
+
+
+#--executability, -E      preserve executability
+#--verbose, -v            increase verbosity
+#--recursive, -r          recurse into directories
+#--links, -l              copy symlinks as symlinks
+#--times, -t              preserve modification times
+#--compress, -z           compress file data during the transfer
+#--partial                keep partially transferred files
+#--delete-after           receiver deletes after transfer, not during
+#--bwlimit=RATE           limit socket I/O bandwidth
+
+#--delete-after is useful but risky on the first run. better to run and then add it after
+alias fsync='rsync -rltvzE --progress --partial'
+alias fsynclimit='fsync --bwlimit=1400'
+
 # For debug symbols
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
 

@@ -1,9 +1,29 @@
 #!/bin/bash
-
 set -eo pipefail
 
-PRESET=$(cmake --list-presets | tail -n +3 | fzf --reverse | sed "s/\"//g")
-cmake --preset $PRESET
-TARGET=$(cmake --build --preset $PRESET --target help | grep -E '^[^/]+$' | grep -v -E '^(lib.*.lib.a|test:|edit_cache:|rebuild_cache|list_install_components:|install:|build.ninja:|clean:|help:)' | sed -E 's/^(.*): phony$/\1/' | fzf --reverse)
-echo "cmake --build --preset $PRESET --target $TARGET"
-cmake --build --preset $PRESET --target $TARGET
+PRESET=$(cmake --list-presets | tail -n +3 | fzf --reverse --height 80% | sed -E 's/"| //g')
+BUILD_DIR=$(jq -r --arg PRESET $PRESET '.configurePresets[] | select(.name == $PRESET) | .binaryDir' CMakePresets.json)
+
+if [ -z "$BUILD_DIR" ]; then
+	echo "Error: Could not determine build directory."
+	exit 1
+fi
+
+# Resolve ${sourceParentDir} if present
+BUILD_DIR=$(echo "$BUILD_DIR" | sed "s|\${sourceParentDir}|$(dirname $(pwd))|")
+echo "Build directory: $BUILD_DIR"
+
+if [ -d "$BUILD_DIR" ]; then
+	
+	if [ -f "$BUILD_DIR/CMakeCache.txt" ]; then
+		echo "Using existing build directory with cache: $BUILD_DIR"
+		TARGET=$(cmake --build --preset $PRESET --target help | grep -E '^[^/]+$' | grep -v -E '^(lib.*.lib.a|test:|edit_cache:|rebuild_cache|list_install_components:|install:|build.ninja:|clean:|help:)' | sed -E 's/^(.*): phony$/\1/' | fzf --reverse --height 80%)
+		eval "cmake --build --preset $PRESET --target $TARGET"
+		exit 0
+	fi
+fi
+
+eval "cmake --preset $PRESET"
+
+
+
