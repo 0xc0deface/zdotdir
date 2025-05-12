@@ -2,6 +2,8 @@
 set -eo pipefail
 
 PRESET=$(cmake --list-presets | tail -n +3 | fzf --reverse --height 80% | sed -E 's/"| //g')
+echo "Preset: $PRESET"
+
 BUILD_DIR=$(jq -r --arg PRESET $PRESET '.configurePresets[] | select(.name == $PRESET) | .binaryDir' CMakePresets.json)
 
 if [ -z "$BUILD_DIR" ]; then
@@ -13,7 +15,7 @@ fi
 BUILD_DIR=$(echo "$BUILD_DIR" | sed "s|\${sourceParentDir}|$(dirname $(pwd))|")
 echo "Build directory: $BUILD_DIR"
 
-if [ -d "$BUILD_DIR" ]; then
+if [ -d "$BUILD_DIR" ] && [ "$1" != "--configure" ]; then
 	
 	if [ -f "$BUILD_DIR/CMakeCache.txt" ]; then
 		echo "Using existing build directory with cache: $BUILD_DIR"

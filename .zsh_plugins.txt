@@ -38,3 +38,4 @@ zdharma-continuum/fast-syntax-highlighting kind:defer  # Syntax highlighting
 zsh-users/zsh-autosuggestions kind:defer               # Auto-suggestions
 zsh-users/zsh-history-substring-search kind:defer      # Up/Down to search history
 ohmyzsh/ohmyzsh path:plugins/colored-man-pages kind:defer
+jirutka/zsh-shift-select kind:defer

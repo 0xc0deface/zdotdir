@@ -5,7 +5,13 @@
 
 export PATH=$PATH:$HOME/bin
 
+if [[ -d "$HOME/.config/emacs/bin" ]]; then
+  export PATH=$PATH:$HOME/.config/emacs/bin
+fi
+
 export LS_COLORS="$(vivid generate iceberg-dark)"
+
+unsetopt correct_all
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of .zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -33,6 +39,9 @@ fi
 # Create an amazing Zsh config using antidote plugins.
 source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
 antidote load
+
+autoload -Uz compinit
+compinit
 
 # Source anything in .zshrc.d.
 for _rc in ${ZDOTDIR:-$HOME}/.zshrc.d/*.zsh; do
@@ -91,3 +100,14 @@ alias fsynclimit='fsync --bwlimit=1400'
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
 
 export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+
+source ${ZDOTDIR:-$HOME}/files/export_backpack
+
+#disable flow control
+#stty ixany > /dev/null 2>&1
+#stty ixoff -ixon > /dev/null  2>&1
+#
+
+#not sure this does anything
+#bindkey '^[[28;5~' copy
+

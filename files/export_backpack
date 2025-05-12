@@ -1,0 +1,42 @@
+#!/bin/sh
+if [ -z "$BACKPACK" ]; then
+	encode() {
+		base64 | tr -d "\n"
+	}
+	RC="$(encode < ~/.backpack)"
+	FUNCTION="$(encode <<EOF
+backpack() (
+	$(cat "$(realpath "$0")")
+)
+EOF
+)"
+	export BACKPACK="$(encode <<EOF
+extract_backpack() {
+	exec "\$BASH" --rcfile <(
+		cat <<'EOF_2'
+[ -f /etc/profile ] && . /etc/profile
+for f in ~/.bash_profile ~/.bash_login ~/.profile; do
+	if [ -f "\$f" ]; then
+		. "\$f"
+		break
+	fi
+done
+EOF_2
+		decode "$FUNCTION"
+		decode "$RC"
+	) -i;
+}
+EOF
+)"
+fi
+export BACKPACK_SSH_INIT="$(
+cat <<EOF
+[ -n "\$BASH" ] && which base64 fold >/dev/null \
+&& eval 'decode() { printf %s "\$1" | fold -w 64 | base64 -d; }' \
+&& export BACKPACK="$BACKPACK" \
+&& eval "\$(decode "\$BACKPACK")" \
+&& extract_backpack
+[ -x "\$SHELL" ] && exec "\$SHELL" -l
+exec /bin/sh -i
+EOF
+)"

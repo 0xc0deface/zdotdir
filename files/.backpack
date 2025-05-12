@@ -134,48 +134,6 @@ match_lhs=""
 	&& match_lhs=$(dircolors --print-database)
 [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
 
-if ${use_color} ; then
-	# Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
-	if type -P dircolors >/dev/null ; then
-		if [[ -f ~/.dir_colors ]] ; then
-			eval $(dircolors -b ~/.dir_colors)
-		elif [[ -f /etc/DIR_COLORS ]] ; then
-			eval $(dircolors -b /etc/DIR_COLORS)
-		fi
-	fi
-
-	if [[ ${EUID} == 0 ]] ; then
-		PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
-	else
-		PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
-	fi
-
-	alias ls='ls --color=auto'
-	alias grep='grep --colour=auto'
-	alias egrep='egrep --colour=auto'
-	alias fgrep='fgrep --colour=auto'
-	alias ip='ip -c=auto'
-	alias dmesg='dmesg --color'
-else
-	if [[ ${EUID} == 0 ]] ; then
-		# show root@ when we don't have colors
-		PS1='\u@\h \W \$ '
-	else
-		PS1='\u@\h \w \$ '
-	fi
-fi
-
-unset use_color safe_term match_lhs sh
-
-# some aliases from ubuntu
-alias cp="cp -i"                          # confirm before overwriting something
-alias df='df -h'                          # human-readable sizes
-alias free='free -m'                      # show sizes in MB
-
-# https://github.com/sineemore/backpack/tree/master
-# backpack is a wrapper for ssh that allows you to run commands on remote servers
-alias ssh=backpack
-
 # Bash won't get SIGWINCH if another process is in the foreground.
 # Enable checkwinsize so that bash will check the terminal size when
 # it regains control.  #65623
@@ -223,3 +181,114 @@ bind 'set colored-stats on'
 bind 'set menu-complete-display-prefix on'
 bind 'set colored-completion-prefix on'
 bind 'set show-all-if-unmodified on'
+
+##############
+# FUNCTIONS
+##############
+
+# checksfcroute: resolve hostname → route → Solarflare check
+checksfcroute() {
+  if [ -z "$1" ]; then
+    echo "Usage: checksfcroute <hostname-or-IP>"
+    return 1
+  fi
+
+  local dst="$1"
+  local ip
+
+  # 1) if it's already an IP, skip lookup; else resolve via getent
+  if [[ "$dst" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    ip="$dst"
+  else
+    ip=$(getent ahosts "$dst" | awk '$1 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print $1; exit}')
+    if [ -z "$ip" ]; then
+      echo "Error: could not resolve host '$dst'"
+      return 1
+    fi
+    echo "Resolved $dst → $ip"
+  fi
+
+  # 2) get the route info to the IP
+  local info
+  if ! info=$(ip route get "$ip" 2>/dev/null); then
+  	echo "Error: unable to get route to $ip"
+  	return 1
+  fi
+  echo "$info"
+  
+
+  # 3) extract the 'dev' field
+  local dev
+  dev=$(awk '/dev/ {
+    for (i = 1; i <= NF; i++) {
+      if ($i == "dev") print $(i + 1)
+    }
+  }' <<<"$info")
+
+  if [ -z "$dev" ]; then
+    echo "Could not parse interface from route info"
+    return 1
+  fi
+
+# Handle VLAN interfaces (e.g., sfc0.123)
+  if [[ "$dev" =~ \. ]]; then
+  	dev=${dev%%.*}  # Strip VLAN tag to get the base interface
+  fi
+
+  # 4) check the driver for that interface
+  local drv
+  drv=$(ethtool -i "$dev" 2>/dev/null | awk '/driver:/ {print $2}')
+
+  if [ "$drv" = "sfc" ]; then
+    echo "✅ Interface $dev is a Solarflare card (driver: $drv)"
+  else
+    echo "❌ Interface $dev is not a Solarflare card (driver: ${drv:-unknown})"
+    return 2
+  fi
+}
+
+if ${use_color} ; then
+	# Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
+	if type -P dircolors >/dev/null ; then
+		if [[ -f ~/.dir_colors ]] ; then
+			eval $(dircolors -b ~/.dir_colors)
+		elif [[ -f /etc/DIR_COLORS ]] ; then
+			eval $(dircolors -b /etc/DIR_COLORS)
+		fi
+	fi
+
+	if [[ ${EUID} == 0 ]] ; then
+		PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
+	else
+		PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+	fi
+
+	alias ls='ls --color=auto'
+	alias grep='grep --colour=auto'
+	alias egrep='egrep --colour=auto'
+	alias fgrep='fgrep --colour=auto'
+	alias ip='ip -c=auto'
+	alias dmesg='dmesg --color'
+else
+	if [[ ${EUID} == 0 ]] ; then
+		# show root@ when we don't have colors
+		PS1='\u@\h \W \$ '
+	else
+		PS1='\u@\h \w \$ '
+	fi
+fi
+
+unset use_color safe_term match_lhs sh
+
+# some aliases from ubuntu
+alias cp="cp -i"                          # confirm before overwriting something
+alias df='df -h'                          # human-readable sizes
+alias free='free -m'                      # show sizes in MB
+alias ip='ip -c=auto'
+
+# https://github.com/sineemore/backpack/tree/master
+# backpack is a wrapper for ssh that allows you to run commands on remote servers
+alias ssh=backpack
+
+# make it callable as an alias
+alias checksfcroute=checksfcroute
