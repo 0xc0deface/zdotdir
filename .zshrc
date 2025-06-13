@@ -95,6 +95,7 @@ alias findfolder='find . -type d -name'
 #--delete-after is useful but risky on the first run. better to run and then add it after
 alias fsync='rsync -rltvzE --progress --partial'
 alias fsynclimit='fsync --bwlimit=1400'
+alias listening_ports='ss -tulpn | grep LISTEN'
 
 # For debug symbols
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
