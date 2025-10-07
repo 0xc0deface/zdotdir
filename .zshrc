@@ -92,10 +92,22 @@ alias findfolder='find . -type d -name'
 #--delete-after           receiver deletes after transfer, not during
 #--bwlimit=RATE           limit socket I/O bandwidth
 
+function listening_ports() {
+  ss -ltnp | grep LISTEN | while read -r line; do
+    pid=$(echo "$line" | grep -oP 'pid=\K[0-9]+' || true)
+    port=$(echo "$line" | grep -oP ':[0-9]+(?=\s)' | tr -d :)
+    exe_path="/proc/$pid/exe"
+    if [ -e "$exe_path" ]; then
+      binary=$(basename "$(readlink -f "$exe_path")")
+      user=$(awk '/^Uid:/{print $2}' "/proc/$pid/status" | xargs id -nu 2>/dev/null || echo "unknown")
+      printf "Port(%s) PID(%s) USER(%s) BIN(%s)\n" "$port" "$pid" "$user" "$binary"
+    fi
+  done
+}
+
 #--delete-after is useful but risky on the first run. better to run and then add it after
 alias fsync='rsync -rltvzE --progress --partial'
 alias fsynclimit='fsync --bwlimit=1400'
-alias listening_ports='ss -tulpn | grep LISTEN'
 
 # For debug symbols
 export DEBUGINFOD_URLS=https://debuginfod.elfutils.org/
