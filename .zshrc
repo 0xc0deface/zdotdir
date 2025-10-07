@@ -43,6 +43,9 @@ antidote load
 autoload -Uz compinit
 compinit
 
+autoload -Uz bashcompinit
+bashcompinit
+
 # Source anything in .zshrc.d.
 for _rc in ${ZDOTDIR:-$HOME}/.zshrc.d/*.zsh; do
   # Ignore tilde files.
