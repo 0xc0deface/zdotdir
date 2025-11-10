@@ -6,7 +6,10 @@ if [ -z "$BACKPACK" ]; then
 	encode() {
 		base64 | tr -d "\n"
 	}
-	RC="$(encode < ~/.backpack)"
+	sed_replace_encode() {
+		cat ~/.backpack | sed -E 's/(.*SED_REPLACE=")\$\((.+)\)(")/printf "\1\\"%s\\"\3" "\$(\2)"/e' | encode
+	}
+	RC="$(sed_replace_encode)"
 	FUNCTION="$(encode <<EOF
 backpack() (
 	$(cat "$(realpath "$0")")

@@ -20,6 +20,19 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+
+# Source everything in a dedicated "source" directory (one-liner scripts, env files, etc.).
+ZSOURCEDIR=${ZDOTDIR:-$HOME}/source
+if [[ -d $ZSOURCEDIR ]]; then
+  for _src in $ZSOURCEDIR/*(.N); do
+    # Ignore tilde files and only source readable regular files.
+    if [[ "$_src:t" != '~'* && -r "$_src" ]]; then
+      source "$_src"
+    fi
+  done
+  unset _src
+fi
+
 ZSCRIPTDIR=${ZDOTDIR:-$HOME}/scripts
 path=($ZSCRIPTDIR $path)
 
@@ -85,16 +98,6 @@ alias findfile='find . -type f -name'
 alias findfolder='find . -type d -name'
 
 
-#--executability, -E      preserve executability
-#--verbose, -v            increase verbosity
-#--recursive, -r          recurse into directories
-#--links, -l              copy symlinks as symlinks
-#--times, -t              preserve modification times
-#--compress, -z           compress file data during the transfer
-#--partial                keep partially transferred files
-#--delete-after           receiver deletes after transfer, not during
-#--bwlimit=RATE           limit socket I/O bandwidth
-
 function listening_ports() {
   ss -ltnp | grep LISTEN | while read -r line; do
     pid=$(echo "$line" | grep -oP 'pid=\K[0-9]+' || true)
@@ -108,6 +111,15 @@ function listening_ports() {
   done
 }
 
+#--executability, -E      preserve executability
+#--verbose, -v            increase verbosity
+#--recursive, -r          recurse into directories
+#--links, -l              copy symlinks as symlinks
+#--times, -t              preserve modification times
+#--compress, -z           compress file data during the transfer
+#--partial                keep partially transferred files
+#--delete-after           receiver deletes after transfer, not during
+#--bwlimit=RATE           limit socket I/O bandwidth
 #--delete-after is useful but risky on the first run. better to run and then add it after
 alias fsync='rsync -rltvzE --progress --partial'
 alias fsynclimit='fsync --bwlimit=1400'
