@@ -97,6 +97,30 @@ if [ ! -d "$HOME/.pyenv" ]; then
 	curl -fsSL https://pyenv.run | bash
 fi
 
+# install TPM (Tmux Plugin Manager)
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+	echo "Installing TPM (Tmux Plugin Manager)..."
+	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+	echo "TPM installed. Run 'tmux' then press Ctrl-Space + I to install plugins"
+else
+	echo "TPM already installed"
+fi
+
+# Check for clipboard tools (needed for tmux copy-paste)
+# Note: On Wayland systems (KDE/GNOME), clipboard sync is handled automatically
+# On remote X11 systems with SSH X11 forwarding, xsel is required
+if command -v xsel >/dev/null 2>&1; then
+	echo "xsel found: clipboard integration will work with X11 forwarding"
+elif [ -n "$WAYLAND_DISPLAY" ]; then
+	echo "Wayland detected: clipboard managed by desktop environment"
+	echo "Note: For SSH X11 forwarding to work, install xsel on remote machines"
+else
+	echo "WARNING: xsel not found. Install it for tmux clipboard integration:"
+	echo "  Debian/Ubuntu: sudo apt install xsel"
+	echo "  Arch/Manjaro:  sudo pacman -S xsel"
+	echo "  RHEL/Fedora:   sudo dnf install xsel"
+fi
+
 #install fonts (still need to be set in terminal/system)
 mkdir -p ~/.local/share/fonts
 pushd ~/.local/share/fonts
