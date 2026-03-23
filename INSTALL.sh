@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
 # use or create a bin directory
 if [ -d "$HOME/bin" ]; then
 	export BIN_DIR="$HOME/bin"
@@ -148,3 +152,20 @@ link_if_not_exists "files/MattsTilixTheme.json" "$HOME/.config/tilix/schemes/Mat
 link_if_not_exists "files/.backpack" "$HOME/.backpack"
 link_if_not_exists "files/backpack" "$BIN_DIR/backpack"
 link_if_not_exists "files/export_backpack" "$BIN_DIR/export_backpack"
+
+echo ""
+echo "========================================"
+echo "Setup complete!"
+echo "========================================"
+echo ""
+echo "Next steps:"
+echo "1. Start tmux (or restart if already running)"
+echo "2. Press Ctrl-Space + I (capital I) to install tmux plugins"
+echo "3. Wait for plugins to download (Dracula theme, fzf, etc.)"
+echo ""
+if [ -z "$WAYLAND_DISPLAY" ]; then
+	echo "Note: For clipboard integration over SSH, ensure:"
+	echo "  - xsel is installed on this machine"
+	echo "  - SSH config has ForwardX11 yes"
+	echo ""
+fi
