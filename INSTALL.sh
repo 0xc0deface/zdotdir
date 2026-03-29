@@ -90,11 +90,41 @@ if [ $(uname -m) == "aarch64" ]; then
 	update_from_github glow https://github.com/charmbracelet/glow/releases 'glow_\1_Linux_arm64.tar.gz' 'glow_\1_Linux_arm64\/glow'
 fi
 
-# install ohmyposh
-#curl -s https://ohmyposh.dev/install.sh | bash -s
+# install nerd fonts from github releases
+function install_nerd_font()
+{
+	# $1 = font name (e.g., "Meslo")
+	local font_name=$1
+	local font_dir="$HOME/.local/share/fonts/NerdFonts"
+	local releases_url="https://github.com/ryanoasis/nerd-fonts/releases"
 
-# Install nerd-fonts via oh-my-posh (still needs to be configured to be used by system/terminal)
-#oh-my-posh font install meslo
+	local latest_version=$(wget -qO- "$releases_url/latest" | grep -Eo '/v[0-9]+\.[0-9]+\.[0-9]+' | sed -E 's/\/v//' | head -n 1)
+
+	if [ -z "$latest_version" ]; then
+		echo "Failed to determine latest nerd-fonts version"
+		return 1
+	fi
+
+	local version_file="$font_dir/.${font_name}_version"
+	if [ -f "$version_file" ] && [ "$(cat "$version_file")" = "$latest_version" ]; then
+		echo "Nerd Font '$font_name' is already up-to-date (version $latest_version)"
+		return 0
+	fi
+
+	echo "Installing Nerd Font '$font_name' version $latest_version..."
+	mkdir -p "$font_dir"
+	wget -qO- "$releases_url/download/v${latest_version}/${font_name}.tar.xz" | tar xJf - -C "$font_dir"
+	echo "$latest_version" > "$version_file"
+
+	# refresh font cache
+	if command -v fc-cache >/dev/null 2>&1; then
+		fc-cache -f "$font_dir"
+	fi
+
+	echo "Nerd Font '$font_name' installed (version $latest_version)"
+}
+
+install_nerd_font Meslo
 
 # install pyenv
 if [ ! -d "$HOME/.pyenv" ]; then
@@ -125,14 +155,8 @@ else
 	echo "  RHEL/Fedora:   sudo dnf install xsel"
 fi
 
-#install fonts (still need to be set in terminal/system)
-mkdir -p ~/.local/share/fonts
-pushd ~/.local/share/fonts
-curl -fL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf -o "MesloLGS NF Regular.ttf"
-curl -fL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf -o "MesloLGS NF Bold.ttf"
-curl -fL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf -o "MesloLGS NF Italic.ttf"
-curl -fL https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf -o "MesloLGS NF Bold Italic.ttf"
-popd
+# note: nerd fonts are installed above via install_nerd_font
+# the terminal/system still needs to be configured to use the font (e.g., "MesloLGM Nerd Font")
 
 function link_if_not_exists()
 {
@@ -149,6 +173,8 @@ function link_if_not_exists()
 # link these files straight out of this repo so they all update on pull
 link_if_not_exists "files/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 link_if_not_exists "files/MattsTilixTheme.json" "$HOME/.config/tilix/schemes/MattsTilixTheme.json"
+link_if_not_exists "files/ghostty-config" "$HOME/.config/ghostty/config"
+link_if_not_exists "files/ghostty-theme" "$HOME/.config/ghostty/themes/MattsTilixTheme"
 link_if_not_exists "files/.backpack" "$HOME/.backpack"
 link_if_not_exists "files/backpack" "$BIN_DIR/backpack"
 link_if_not_exists "files/export_backpack" "$BIN_DIR/export_backpack"
