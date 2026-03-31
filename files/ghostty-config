@@ -1,3 +1,8 @@
 theme = MattsTilixTheme
 font-family = MesloLGM Nerd Font
 font-size = 9
+keybind = ctrl+page_up=unbind
+keybind = ctrl+page_down=unbind
+keybind = ctrl+insert=copy_to_clipboard
+keybind = shift+insert=paste_from_clipboard
+keybind = shift+delete=copy_to_clipboard
