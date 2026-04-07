@@ -1,6 +1,7 @@
 theme = MattsTilixTheme
 font-family = MesloLGM Nerd Font
 font-size = 9
+bell-features = system,attention,title
 keybind = ctrl+page_up=unbind
 keybind = ctrl+page_down=unbind
 keybind = ctrl+insert=copy_to_clipboard
