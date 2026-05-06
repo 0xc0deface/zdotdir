@@ -20,6 +20,7 @@ if [ -d "$BUILD_DIR" ] && [ "$1" != "--configure" ]; then
 	if [ -f "$BUILD_DIR/CMakeCache.txt" ]; then
 		echo "Using existing build directory with cache: $BUILD_DIR"
 		TARGET=$(cmake --build --preset $PRESET --target help | grep -E '^[^/]+$' | grep -v -E '^(lib.*.lib.a|test:|edit_cache:|rebuild_cache|list_install_components:|install:|build.ninja:|clean:|help:)' | sed -E 's/^(.*): phony$/\1/' | fzf --reverse --height 80%)
+		echo "cmake --build --preset $PRESET --target $TARGET"
 		eval "cmake --build --preset $PRESET --target $TARGET"
 		exit 0
 	fi
