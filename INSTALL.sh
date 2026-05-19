@@ -72,6 +72,54 @@ function update_from_github()
 	fi
 }
 
+# clangd ships as a zip bundle (binary + lib/clang/<ver>/include headers it
+# needs at runtime), so it doesn't fit update_from_github's single-file model.
+function install_clangd()
+{
+	local install_dir="$HOME/.local/share/clangd"
+	local releases_url="https://github.com/clangd/clangd/releases"
+
+	if [ -x "$BIN_DIR/clangd" ]; then
+		current_version=$("$BIN_DIR/clangd" --version 2>/dev/null | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
+	else
+		current_version="none"
+	fi
+
+	# clangd tags have no 'v' prefix, e.g. /releases/tag/19.1.2
+	local latest_version=$(wget -qO- "$releases_url/latest" | grep -Eo "/tag/[0-9]+\.[0-9]+\.[0-9]+" | sed -E 's|/tag/||' | head -n 1)
+
+	if [ -z "$latest_version" ]; then
+		echo "Failed to determine latest clangd version"
+		return 1
+	fi
+
+	if [ "$current_version" = "$latest_version" ]; then
+		echo "clangd is already up-to-date (version $current_version)"
+		return 0
+	fi
+
+	if ! command -v unzip >/dev/null 2>&1; then
+		echo "ERROR: unzip is required to install clangd; install it and re-run"
+		return 1
+	fi
+
+	echo "Updating clangd: current version ($current_version), latest version ($latest_version)"
+
+	local zip_file="clangd-linux-${latest_version}.zip"
+	local source="$releases_url/download/${latest_version}/${zip_file}"
+	local tmp_zip=$(mktemp --suffix=.zip)
+
+	wget -qO "$tmp_zip" "$source"
+
+	mkdir -p "$install_dir"
+	rm -rf "$install_dir/clangd_"*
+	unzip -q "$tmp_zip" -d "$install_dir"
+	rm -f "$tmp_zip"
+
+	ln -sfn "$install_dir/clangd_${latest_version}/bin/clangd" "$BIN_DIR/clangd"
+	echo "clangd updated to version $latest_version"
+}
+
 if [ $(uname -m) == "x86_64" ]; then
 	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
 	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz '.\/eza'
@@ -80,6 +128,7 @@ if [ $(uname -m) == "x86_64" ]; then
 	update_from_github glow https://github.com/charmbracelet/glow/releases 'glow_\1_Linux_x86_64.tar.gz' 'glow_\1_Linux_x86_64\/glow'
 	update_from_github cheat https://github.com/cheat/cheat/releases 'cheat-linux-amd64.gz'
 	#update_from_github chafa https://github.com/hpjansson/chafa/releases 'chafa-\1.tar.xz'
+	install_clangd
 fi
 
 if [ $(uname -m) == "aarch64" ]; then
