@@ -20,6 +20,13 @@ previous_tab = "ctrl+shift+tab"
 # alt+1..9 jumps straight to tab N (tmux prefix+0-9 equivalent).
 switch_tab = "alt+1"
 
+# Workspace switching. No tmux equivalent -- tmux had no layer above windows.
+# ctrl+alt+n/p are free again now that tab cycling moved to ctrl+tab.
+next_workspace = "ctrl+alt+n"
+previous_workspace = "ctrl+alt+p"
+switch_workspace = "prefix+1"   # indexed: prefix then 1..9
+workspace_picker = "prefix+w"   # tmux: bind w choose-tree
+
 # tmux: bind -n M-Left/Right/Up/Down select-pane
 focus_pane_left = "alt+left"
 focus_pane_right = "alt+right"
