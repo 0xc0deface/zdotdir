@@ -1,0 +1,49 @@
+onboarding = false
+
+[ui.toast]
+delivery = "system"
+
+[keys]
+prefix = "ctrl+space"
+
+# tmux: bind | split-window -h   (side by side)
+split_vertical = "prefix+|"
+# tmux: bind - split-window -v   (stacked)
+split_horizontal = "prefix+minus"
+
+# tmux had: bind-key -n C-PageUp next-window / C-PageDown previous-window
+# herdr 0.8.2 has no PageUp/PageDown key token. ctrl+tab / ctrl+shift+tab are
+# unbound in ~/.config/ghostty/config so they reach herdr instead.
+next_tab = "ctrl+tab"
+previous_tab = "ctrl+shift+tab"
+
+# alt+1..9 jumps straight to tab N (tmux prefix+0-9 equivalent).
+switch_tab = "alt+1"
+
+# tmux: bind -n M-Left/Right/Up/Down select-pane
+focus_pane_left = "alt+left"
+focus_pane_right = "alt+right"
+focus_pane_up = "alt+up"
+focus_pane_down = "alt+down"
+
+[ui]
+show_agent_labels_on_pane_borders = false
+
+# herdr-sidebar plugin (file explorer / source control).
+# Plugin actions have no native keybinding type, so these shell out.
+[[keys.command]]
+key = "prefix+shift+s"
+type = "shell"
+command = "herdr plugin action invoke open-sidebar --plugin herdr-sidebar"
+
+[[keys.command]]
+key = "prefix+shift+g"
+type = "shell"
+command = "herdr plugin action invoke open-git --plugin herdr-sidebar"
+
+# herdr-board plugin (kanban). prefix+k is free here: focus_pane_up is remapped to alt+up.
+[[keys.command]]
+key = "prefix+k"
+type = "shell"
+command = "herdr plugin action invoke open-board --plugin herdr-board"
+description = "open herdr-board kanban (overlay)"
