@@ -120,6 +120,41 @@ function install_clangd()
 	echo "clangd updated to version $latest_version"
 }
 
+# chafa's GitHub releases only carry source tarballs, so take the version from
+# the GitHub tag and the binary from the upstream static builds.
+function install_chafa()
+{
+	local releases_url="https://github.com/hpjansson/chafa/releases"
+	local static_url="https://hpjansson.org/chafa/releases/static"
+	local arch=$(uname -m)
+
+	if [ -x "$BIN_DIR/chafa" ]; then
+		current_version=$("$BIN_DIR/chafa" --version 2>/dev/null | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
+	else
+		current_version="none"
+	fi
+
+	# chafa tags have no 'v' prefix, e.g. /releases/tag/1.18.3
+	local latest_version=$(wget -qO- "$releases_url/latest" | grep -Eo "/tag/[0-9]+\.[0-9]+\.[0-9]+" | sed -E 's|/tag/||' | head -n 1)
+
+	if [ -z "$latest_version" ]; then
+		echo "Failed to determine latest chafa version"
+		return 1
+	fi
+
+	if [ "$current_version" = "$latest_version" ]; then
+		echo "chafa is already up-to-date (version $current_version)"
+		return 0
+	fi
+
+	echo "Updating chafa: current version ($current_version), latest version ($latest_version)"
+
+	local name="chafa-${latest_version}-1-${arch}-linux-gnu"
+	wget -qO- "$static_url/${name}.tar.gz" | tar xzfO - "${name}/chafa" > "$BIN_DIR/chafa"
+	chmod +x "$BIN_DIR/chafa"
+	echo "chafa updated to version $latest_version"
+}
+
 if [ $(uname -m) == "x86_64" ]; then
 	update_from_github fzf https://github.com/junegunn/fzf/releases 'fzf-\1-linux_amd64.tar.gz'
 	update_from_github eza https://github.com/eza-community/eza/releases eza_x86_64-unknown-linux-gnu.tar.gz '.\/eza'
@@ -127,7 +162,7 @@ if [ $(uname -m) == "x86_64" ]; then
 	update_from_github vivid https://github.com/sharkdp/vivid/releases 'vivid-v\1-x86_64-unknown-linux-gnu.tar.gz' 'vivid-v\1-x86_64-unknown-linux-gnu\/vivid'
 	update_from_github glow https://github.com/charmbracelet/glow/releases 'glow_\1_Linux_x86_64.tar.gz' 'glow_\1_Linux_x86_64\/glow'
 	update_from_github cheat https://github.com/cheat/cheat/releases 'cheat-linux-amd64.gz'
-	#update_from_github chafa https://github.com/hpjansson/chafa/releases 'chafa-\1.tar.xz'
+	install_chafa
 	install_clangd
 fi
 
