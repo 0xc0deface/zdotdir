@@ -36,6 +36,8 @@ focus_pane_down = "alt+down"
 [ui]
 show_agent_labels_on_pane_borders = false
 
+status_indicators = "symbols"
+
 # herdr-sidebar plugin (file explorer / source control).
 # Plugin actions have no native keybinding type, so these shell out.
 [[keys.command]]
